@@ -16,6 +16,7 @@ lines = [(0, 1),
          (8, 9), (9, 10), (11, 12), (12, 13),
         #  (14, 16), (15, 17)
         ]
+
 def which_color(points):
     if any(map(lambda x:x>1400, points)):
         return 0
@@ -27,37 +28,22 @@ def which_color(points):
 #['blue', 'red', 'green']
 
 color_list = ['#006ab6', '#fb2f78', '#0bc8c2']
-alpha_dir = 'AlphaPose/output/sep-json'
-# for fname in os.listdir(alpha_dir):
+color = 'red'
+mark = 4
 
+img_dir = f'videos/{mark}'
+output_dir = f'output/{mark}'
+json_res_path = os.path.join(output_dir, 'alphapose-results.json')
+with open(json_res_path) as f:
+    json_data = json.load(f)
+    json_data = {i['image_id']: i['keypoints'] for i in json_data}
 
-def gao_image(fname):
-    json_fpath = os.path.join(alpha_dir, fname.replace('.png', '.json'))
-    img_fpath = os.path.join('images', fname)
+def plot_alphapose_json(fname):
+    img_fpath = os.path.join(img_dir, fname)
     img = Image.open(img_fpath)
-    with open(json_fpath) as f:
-        item = f.read()
-        item = json.loads(item)
-    def in_or_out(people):
-        joints = people['joints']
-        avg = 0
-        counts = 0
+    if fname in json_data:
+        joints = json_data[fname]
         lens = len(joints)
-        p_number = lens // 3
-        for i in range(p_number):
-            avg += float(joints[i * 3 + 2])
-            counts += 1
-        avg = avg / counts
-        if avg > 0.5:
-            return 1
-        else:
-            return 0
-    print(item['bodies'])
-    peoples = [i for i in item['bodies'] if in_or_out(i)]
-    for index, people in enumerate(peoples):
-        joints = people['joints']
-        lens = len(joints)
-        color = color_list[which_color(joints)]
         tmp = []
         assert lens % 3 == 0
         p_number = lens // 3
@@ -76,7 +62,7 @@ def gao_image(fname):
             if i in [14, 15, 16, 17]:
                 continue
             plt.scatter(x, y, s = 36, color=color)
-            # plt.text(x, y, str(i))
+
         point = ((tmp[8][0] + tmp[11][0])/2, (tmp[8][1] + tmp[11][1])/2)
         tmp.append(point)
         plt.scatter(point[0], point[1], s=36, color=color)
@@ -128,22 +114,22 @@ def gao_image(fname):
     plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, 
                 hspace = 0, wspace = 0)
     # plt.show()
-
-    plt.savefig('./alpha/{}'.format(fname), dpi=500/1.673, bbox_inches='tight', pad_inches=0)
+    res_fpath = os.path.join(output_dir, '{}.format(fname)')
+    plt.savefig(res_fpath, dpi=500/1.673, bbox_inches='tight', pad_inches=0)
     plt.clf()
 
 
 if __name__ == '__main__':
-    multiprocessing.freeze_support()
-    f_lists = os.listdir('images')
-    pool = Pool(8)
-    pool.map(gao_image, f_lists)
-    pool.close()
-    pool.join()
-    # fname = '01956.png'
+    # multiprocessing.freeze_support()
+    # f_lists = os.listdir('images')
+    # pool = Pool(8)
+    # pool.map(gao_image, f_lists)
+    # pool.close()
+    # pool.join()
+    fname = '01956.png'
     # fname = '02578.png'
     # fname = '00801.png'
-    # gao_image(fname)
+    gao_image(fname)
 
 
 

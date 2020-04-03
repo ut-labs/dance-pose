@@ -42,6 +42,11 @@ def rename_files():
         print(cmdline)
     rs_f.close()
 
+def run_models():
+    cmdline = 'python demo.py --indir videos/4 --outdir output/4'
+
+
+
 def main():
     rename_files()
     
