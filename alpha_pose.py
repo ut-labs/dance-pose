@@ -29,72 +29,66 @@ def which_color(points):
 
 color_list = ['#006ab6', '#fb2f78', '#0bc8c2']
 color = 'red'
-mark = 4
+mark = 1
 
 img_dir = f'videos/{mark}'
 output_dir = f'output/{mark}'
 json_res_path = os.path.join(output_dir, 'alphapose-results.json')
 with open(json_res_path) as f:
     json_data = json.load(f)
-    json_data = {i['image_id']: i['keypoints'] for i in json_data}
+    # json_data = {i['image_id']: i['keypoints'] for i in json_data}
 
 def plot_alphapose_json(fname):
     img_fpath = os.path.join(img_dir, fname)
     img = Image.open(img_fpath)
     if fname in json_data:
-        joints = json_data[fname]
-        lens = len(joints)
-        tmp = []
-        assert lens % 3 == 0
-        p_number = lens // 3
-        # 0-1 dist
-        dis_01 = (joints[0] - joints[1*3])**2 + (joints[1] - joints[1*3+1])**2
-        if dis_01 > 10000:
-            joints[0] = joints[3] +np.sqrt(4000) / np.sqrt(dis_01) * (joints[0]  - joints[3]) 
-            joints[1] = joints[3+1] + np.sqrt(4000) / np.sqrt(dis_01) * (joints[1]  - joints[3+1]) 
-        # print(dis_01)
-        for i in range(p_number):
-            x = int(joints[i * 3])
-            y = int(joints[i * 3 + 1])
-            z = float(joints[i * 3 + 2])
-           
-            tmp.append((x, y))
-            if i in [14, 15, 16, 17]:
-                continue
-            plt.scatter(x, y, s = 36, color=color)
+        item = json_data[fname]
+        peoples = [i for i in item['bodies']]
+        for ind, people in enumerate(peoples):
+            joints = people['joints']
+            lens = len(joints)
+            tmp = []
+            assert lens % 3 == 0
+            p_number = lens // 3
+            # 0-1 dist
+            dis_01 = (joints[0] - joints[1*3])**2 + (joints[1] - joints[1*3+1])**2
+            if dis_01 > 10000:
+                joints[0] = joints[3] +np.sqrt(4000) / np.sqrt(dis_01) * (joints[0]  - joints[3]) 
+                joints[1] = joints[3+1] + np.sqrt(4000) / np.sqrt(dis_01) * (joints[1]  - joints[3+1]) 
+            # print(dis_01)
+            for i in range(p_number):
+                x = int(joints[i * 3])
+                y = int(joints[i * 3 + 1])
+                z = float(joints[i * 3 + 2])
+            
+                tmp.append((x, y))
+                if i in [14, 15, 16, 17]:
+                    continue
+                plt.scatter(x, y, s = 36, color=color)
 
-        point = ((tmp[8][0] + tmp[11][0])/2, (tmp[8][1] + tmp[11][1])/2)
-        tmp.append(point)
-        plt.scatter(point[0], point[1], s=36, color=color)
-        for line in lines:
-            item_1 = tmp[line[0]]
-            item_2 = tmp[line[1]]
-            x1 = item_1[0]
-            x2 = item_2[0]
-            y1 = item_1[1]
-            y2 = item_2[1]
-            dis = (x1-x2)**2+(y1-y2)**2
-            dis = np.sqrt(dis)
-            if dis > 400:
-                continue
-            plt.plot((x1, x2), (y1, y2), color=color, linewidth= 4)
-        face = ( (tmp[16][0] + tmp[17][0])/2, (tmp[16][1] + tmp[17][1])/2)
-        face_s = (np.sqrt( (tmp[17][1] -  tmp[16][1]) ** 2 + (tmp[17][0] - tmp[16][0])**2 )/2)
-        face_s = (face_s + 12) ** 2  / 4
-        # print(face_s)
-        # def max_dis(origin, tmp):
-        #     tmp_list = [14, 15, 16, 17]
-        #     dis_max = 600
-        #     for j in tmp_list:
-        #         dis_max_1 = (origin[0] - tmp[j][0]) ** 2 + (origin[1] - tmp[j][1]) ** 2
-        #         if dis_max_1 > dis_max and dis_max_1 < 5000:
-        #             dis_max = dis_max_1
-        #         print(dis_max_1)
-        #     return dis_max  
-        # face_s = max_dis(tmp[0], tmp)
-        face_s = 600
-        face = (tmp[0][0], tmp[0][1])
-        plt.scatter(face[0], face[1], s=face_s, color=color)
+            point = ((tmp[8][0] + tmp[11][0])/2, (tmp[8][1] + tmp[11][1])/2)
+            tmp.append(point)
+            print(tmp)
+            plt.scatter(point[0], point[1], s=36, color=color)
+            for line in lines:
+                item_1 = tmp[line[0]]
+                item_2 = tmp[line[1]]
+                x1 = item_1[0]
+                x2 = item_2[0]
+                y1 = item_1[1]
+                y2 = item_2[1]
+                dis = (x1-x2)**2+(y1-y2)**2
+                dis = np.sqrt(dis)
+                if dis > 400:
+                    continue
+                plt.plot((x1, x2), (y1, y2), color=color, linewidth= 4)
+            face = ( (tmp[16][0] + tmp[17][0])/2, (tmp[16][1] + tmp[17][1])/2)
+            face_s = np.sqrt( (tmp[17][1] -  tmp[16][1]) ** 2 + (tmp[17][0] - tmp[16][0])**2 )/2
+            face_s = (face_s) ** 2 
+            print(face_s)
+            face_s = 1600
+            face = (tmp[0][0], tmp[0][1]-20)
+            plt.scatter(face[0], face[1], s=face_s, color=color)
 
 
     img_np = np.array(img)
@@ -114,22 +108,20 @@ def plot_alphapose_json(fname):
     plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, 
                 hspace = 0, wspace = 0)
     # plt.show()
-    res_fpath = os.path.join(output_dir, '{}.format(fname)')
+    res_fpath = os.path.join(output_dir, '{}'.format(fname))
     plt.savefig(res_fpath, dpi=500/1.673, bbox_inches='tight', pad_inches=0)
     plt.clf()
 
 
 if __name__ == '__main__':
-    # multiprocessing.freeze_support()
-    # f_lists = os.listdir('images')
-    # pool = Pool(8)
-    # pool.map(gao_image, f_lists)
-    # pool.close()
-    # pool.join()
-    fname = '01956.png'
-    # fname = '02578.png'
-    # fname = '00801.png'
-    gao_image(fname)
+    multiprocessing.freeze_support()
+    f_lists = os.listdir(img_dir)
+    pool = Pool(8)
+    pool.map(plot_alphapose_json, f_lists)
+    pool.close()
+    pool.join()
+    # fname = '01956.png'
+    # plot_alphapose_json(fname)
 
 
 

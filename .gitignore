@@ -129,4 +129,5 @@ dmypy.json
 .pyre/
 
 videos/
-
+output/
+*.mp4
