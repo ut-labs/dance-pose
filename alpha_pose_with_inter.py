@@ -90,6 +90,7 @@ def plot_alphapose_json(inter = 10):
     seqs = np.array(seqs)
     print(seqs.shape)
     frames = seqs.shape[0]
+    before_action = ''
     for i in tqdm(range(frames // inter)):
         begin_i = i * inter
         end_i = (i+1) * inter
@@ -100,9 +101,14 @@ def plot_alphapose_json(inter = 10):
         d = (c.sum(axis=0) - t1 - t2) / (inter - 2)
         # d = (c * m).sum(axis=0) / m.sum(axis=0)
         action = d.reshape(18, 2)
+        if i > 0:
         # print(i*10, action)
-        plot_it(f'{i+1:0>5}.png', action)
-        
+            for j in range(inter):
+                alpha = (j+1) / inter
+                action = before_action * (1 - inter) + action * inter
+                num = i * 10 + j + 1
+                plot_it(f'{num:0>5}.png', action)
+        before_action = action
 
 def plot_it(fname, action):
 
