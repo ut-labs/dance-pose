@@ -12,3 +12,10 @@ you-get https://www.iqiyi.com/v_19rx3k0t0g.html?list=19rqwueh0q
 
 
 
+### run alphapose
+
+```
+python demo.py --indir videos/1 --outdir output/1 --format cmu
+```
+
+
