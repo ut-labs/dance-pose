@@ -8,6 +8,25 @@ from PIL import Image
 import multiprocessing
 from multiprocessing import Pool
 
+# {0,  "Nose"},
+# {1,  "Neck"},
+# {2,  "RShoulder"},
+# {3,  "RElbow"},
+# {4,  "RWrist"},
+# {5,  "LShoulder"},
+# {6,  "LElbow"},
+# {7,  "LWrist"},
+# {8,  "RHip"},
+# {9,  "RKnee"},
+# {10, "RAnkle"},
+# {11, "LHip"},
+# {12, "LKnee"},
+# {13, "LAnkle"},
+# {14, "REye"},
+# {15, "LEye"},
+# {16, "REar"},
+# {17, "LEar"},
+
 lines = [(0, 1), 
         #  (0, 14), (0, 15),
          (1, 2), (1, 5), 
@@ -68,7 +87,8 @@ def plot_alphapose_json(fname):
 
             point = ((tmp[8][0] + tmp[11][0])/2, (tmp[8][1] + tmp[11][1])/2)
             tmp.append(point)
-            print(tmp)
+            tmp = np.array(tmp)
+            # print(tmp)
             plt.scatter(point[0], point[1], s=36, color=color)
             for line in lines:
                 item_1 = tmp[line[0]]
@@ -85,9 +105,14 @@ def plot_alphapose_json(fname):
             face = ( (tmp[16][0] + tmp[17][0])/2, (tmp[16][1] + tmp[17][1])/2)
             face_s = np.sqrt( (tmp[17][1] -  tmp[16][1]) ** 2 + (tmp[17][0] - tmp[16][0])**2 )/2
             face_s = (face_s) ** 2 
-            print(face_s)
             face_s = 1600
-            face = (tmp[0][0], tmp[0][1]-20)
+            face = np.array((tmp[0][0], tmp[0][1] - 20))
+            face_v = tmp[1]-tmp[0]
+            face_v_l = np.sqrt(np.sum(face_v**2))
+            neck_l = 30
+            point =  tmp[1] - face_v * (face_v_l + neck_l) / face_v_l
+            # plt.scatter(point[0], point[1], s=20, color='white')
+            print(face)
             plt.scatter(face[0], face[1], s=face_s, color=color)
 
 
@@ -107,22 +132,23 @@ def plot_alphapose_json(fname):
     # plt.tight_layout(pad=0,h_pad=0,w_pad=0)
     plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, 
                 hspace = 0, wspace = 0)
-    # plt.show()
+    plt.show()
     res_fpath = os.path.join(output_dir, '{}'.format(fname))
     plt.savefig(res_fpath, dpi=500/1.673, bbox_inches='tight', pad_inches=0)
     plt.clf()
 
 
 if __name__ == '__main__':
-    multiprocessing.freeze_support()
-    f_lists = os.listdir(img_dir)
-    pool = Pool(8)
-    pool.map(plot_alphapose_json, f_lists)
-    pool.close()
-    pool.join()
-    # fname = '01956.png'
-    # plot_alphapose_json(fname)
-
+    # multiprocessing.freeze_support()
+    # f_lists = os.listdir(img_dir)
+    # pool = Pool(8)
+    # pool.map(plot_alphapose_json, f_lists)
+    # pool.close()
+    # pool.join()
+    fname = '00408.png'
+    plot_alphapose_json(fname)
+    fname = '00409.png'
+    plot_alphapose_json(fname)
 
 
 
