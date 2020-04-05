@@ -49,7 +49,7 @@ def which_color(points):
 
 color_list = ['#006ab6', '#fb2f78', '#0bc8c2']
 color = 'red'
-mark = 4
+mark = 6
 
 img_dir = f'videos/{mark}'
 output_dir = f'output/{mark}'
@@ -105,9 +105,9 @@ def plot_alphapose_json(inter = 10):
         # print(i*10, action)
             for j in range(inter):
                 alpha = (j+1) / inter
-                action = before_action * (1 - inter) + action * inter
+                action1 = before_action  + (action - before_action) * alpha
                 num = i * 10 + j + 1
-                plot_it(f'{num:0>5}.png', action)
+                plot_it(f'{num:0>5}.png', action1)
         before_action = action
 
 def plot_it(fname, action):
@@ -160,14 +160,8 @@ def plot_it(fname, action):
         plt.scatter(face[0], face[1], s=face_s, color=color)
 
     img_np = np.array(img)
-    # img_np = np.zeros(img.size)
     img_np = np.zeros(img_np.shape)
-    # img_np = np.ones(img_np.shape)
     plt.imshow(img_np)
-    # mng = plt.get_current_fig_manager()
-    # mng.window.showMaximized()
-    # mng.window.state('zoomed')
-    # plt.figure(figsize=(1.92, 1.08), dpi=100)
     plt.axis('off')
     plt.margins(0, 0)
     plt.gca().xaxis.set_major_locator(plt.NullLocator())
