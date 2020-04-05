@@ -49,7 +49,7 @@ def which_color(points):
 
 color_list = ['#006ab6', '#fb2f78', '#0bc8c2']
 color = 'red'
-mark = 6
+mark = 1
 
 img_dir = f'videos/{mark}'
 output_dir = f'output/{mark}'
@@ -118,10 +118,7 @@ def plot_it(fname, action):
         joints = action
         lens = len(joints)
         tmp = action
-        assert lens % 3 == 0
-        p_number = lens // 3
-
-        for i in range(p_number):
+        for i in range(lens):
             x = tmp[i][0]
             y = tmp[i][1]
             if i in [14, 15, 16, 17]:
@@ -176,6 +173,23 @@ def plot_it(fname, action):
 
 def main():
     plot_alphapose_json()
+
+def test():
+    fname = '00408.png'
+    item = json_data[fname]
+    peoples = [i for i in item['bodies']]
+            # assert len(peoples) == 1
+    joints = peoples[0]['joints']
+    print(len(joints))
+    tmp = []
+    for i in range(len(joints) // 3):
+        x = int(joints[i * 3])
+        y = int(joints[i * 3 + 1])
+        z = float(joints[i * 3 + 2])
+        tmp.append((x, y))
+    
+    action = np.array(tmp).reshape(18, 2)
+    plot_it(fname, action)
 
 if __name__ == '__main__':
     main()
